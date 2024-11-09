@@ -144,7 +144,7 @@ const MintTickets = () => {
                 <div className="w-full h-full relative">
                     <img 
                       src={nftImage}
-                      className="w-full h-full object-cover" 
+                      className="w-full h-full object-cover rounded-3xl" 
                       alt="NFT Preview"
                     />
                     <button 

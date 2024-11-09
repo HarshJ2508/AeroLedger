@@ -40,7 +40,7 @@ export const uploadToPinata = async (
       }
     );
 
-    const imageUrl = `ipfs://${imageResponse.data.IpfsHash}`;
+    const imageUrl = `https://azure-casual-hyena-155.mypinata.cloud/ipfs/${imageResponse.data.IpfsHash}`;
 
     // Create metadata
     const metadata: TicketMetadata = {
