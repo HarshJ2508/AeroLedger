@@ -5,6 +5,7 @@ import { base64ToFile } from "../utils/base64ToFile";
 import IpfsViewer from "./IpfsViewer";
 import Loader from "../components/Loader";
 
+
 const form = [
   {
     label: 'Flight Number',
@@ -55,12 +56,12 @@ type FormType = {
 
 const MintTickets = () => {
   const [formData, setFormData] = useState<FormType>({
-    flightNumber: '',
-    source: '',
-    destination: '',
+    flightNumber: 'FL25',
+    source: 'MUM',
+    destination: 'CHE',
     departureTime: '',
-    seats: 0,
-    fare: 0,
+    seats: 10,
+    fare: 0.00001,
   });
   const [nftImage, setNftImage] = useState<string>(''); 
   const [metadataUri, setMetaDataUri] = useState<string>('');
@@ -114,6 +115,10 @@ const MintTickets = () => {
         "Vistara Airlines"
       );
       setMetaDataUri(metadataUri);
+
+      // const txnResult = await createFlightTransaction(formData, metadataUri);
+      // console.log(txnResult);
+
     } catch (error) {
       console.log(error);
     }
