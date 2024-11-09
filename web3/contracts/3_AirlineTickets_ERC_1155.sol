@@ -22,6 +22,7 @@ contract AirTicketsNFT is ERC1155, Ownable {
         uint256 price;
         bool isActive;
         address airline; 
+        string metadataURI; 
     }
 
     mapping(address => bool) private isFlightOwner;
@@ -31,24 +32,17 @@ contract AirTicketsNFT is ERC1155, Ownable {
     event FlightCreated(uint256 flightId, string flightNumber, uint256 totalSeats);
     event TicketPurchased(uint256 flightId, address buyer, uint256 quantity);
 
-    constructor(address initialOwner) ERC1155("") Ownable(initialOwner) {
-        // Automatically approve the contract to handle transfers
+    constructor(address initialOwner) ERC1155("AeroLedger") Ownable(initialOwner) {
         _setApprovalForAll(address(this), initialOwner, true);
     }
 
-    // Set base URI for metadata
-    function setBaseURI(string memory _baseURL) external onlyOwner {
-        baseURI = _baseURL;
-    }
-
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return flights[tokenId].metadataURI;
     }
 
     function setFlightOwner(address flightOwner) external onlyOwner {
         if(!isFlightOwner[flightOwner]) {
             isFlightOwner[flightOwner] = true;
-            // Automatically approve the contract for the new flight owner
             _setApprovalForAll(address(this), flightOwner, true);
         }
     }
@@ -59,11 +53,13 @@ contract AirTicketsNFT is ERC1155, Ownable {
         string memory source,
         string memory destination,
         uint256 price,
-        uint256 totalSeats
+        uint256 totalSeats,
+        string memory metadataURI
     ) external {
         require(isFlightOwner[msg.sender], "Not authorized to create flights");
         require(departureTime > block.timestamp, "Invalid departure time");
         require(totalSeats > 0, "Seats must be greater than 0");
+        require(bytes(metadataURI).length > 0, "Metadata URI cannot be empty");
 
         uint256 flightId = flightIdCounter++;
 
@@ -77,7 +73,8 @@ contract AirTicketsNFT is ERC1155, Ownable {
             totalSeats: totalSeats,
             price: price,
             isActive: true,
-            airline: msg.sender
+            airline: msg.sender,
+            metadataURI: metadataURI 
         });
 
         // Mint all tickets for this flight
@@ -94,7 +91,7 @@ contract AirTicketsNFT is ERC1155, Ownable {
         
         require(flight.isActive, "Flight is not active");
         require(flight.remainingSeats >= quantity, "Not enough tickets available");
-        require(msg.value >= flight.price * quantity * 1 ether, "Insufficient funds");
+        require(msg.value >= flight.price * quantity, "Insufficient funds");
         require(block.timestamp < flight.departureTime, "Flight has departed");
 
         address seller = flight.airline; // Use stored airline address
