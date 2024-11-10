@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plane, Clock, ArrowLeft, ExternalLink, MapPin, Building, Ticket } from 'lucide-react';
+import { Plane, Clock, ArrowLeft, ExternalLink, MapPin, Building, Ticket, Tag, TicketCheck } from 'lucide-react';
 import { purchaseTicket } from '../utils/flightService';
+import Loader from './Loader';
+import TicketPreview from './TicketPreview';
 
 type Props = {
     tokenId: string;
@@ -11,7 +13,16 @@ type Props = {
     airline: string;
     metadataURI: string;
     departureTime: number;
+    totalSeats: number;
+    remaningSeats: number;
     setFlightPreview: React.Dispatch<React.SetStateAction<number | null>>;
+}
+
+type ticketProps = {
+    blockNumber: string;
+    blockHash: string;
+    gasPrice: number;
+    metadataURI: string;
 }
 
 const FlightPreview = ({
@@ -23,8 +34,12 @@ const FlightPreview = ({
     airline,
     metadataURI,
     departureTime,
+    totalSeats,
+    remaningSeats,
     setFlightPreview,
 }: Props) => {
+    const [loading, setLoading] = useState<string>('');
+    const [ticketBought, setTicketBought] = useState<ticketProps | null>(null);
     const [inrPrice, setInrPrice] = useState<number | null>(null);
     const [nftImage, setNftImage] = useState<string>('');
     const [nftMetadata, setNftMetadata] = useState<any>(null);
@@ -72,6 +87,19 @@ const FlightPreview = ({
         }
         fetchNFTData();
     }, []);
+
+    if(ticketBought) return (
+        <TicketPreview 
+            ticketBought={ticketBought} 
+        />
+    )
+
+    if(loading) return (
+        <div className="w-full h-[500px] flex flex-col gap-10 justify-center items-center">
+            <Loader />
+            <p className='text-xl uppercase'>Your tickets are on the way...</p>
+        </div>
+    )
 
     return (
         <div className="min-h-[80vh]">
@@ -152,11 +180,30 @@ const FlightPreview = ({
                     </div>
 
                     <div className="mt-auto">
+                        <div className='flex justify-between items-center mb-2'>
+                            <div className='flex gap-2'>
+                                <p className='text-blue-300 flex gap-1 items-center'>
+                                    <Tag className='w-5 h-5'/>
+                                    Total Seats
+                                </p>
+                                <p className='font-semibold text-xl tracking-wide'>{totalSeats}</p>
+                            </div>
+                            <div className='flex gap-2'>
+                                <p className='text-blue-300 flex gap-1 items-center'>
+                                    <TicketCheck className='w-5 h-5'/>
+                                    Remaining Seats
+                                </p>
+                                <p className='font-semibold text-xl tracking-wide'>{remaningSeats}</p>
+                            </div>
+                        </div>
                         <button 
                             onClick={() => purchaseTicket({
+                                setLoading: setLoading,
+                                setTicketBought,
                                 flightId: Number.parseInt(tokenId),
                                 quantity: 1,
-                                price: ethPrice.toString()
+                                price: ethPrice.toString(),
+                                metadataURI
                             })}
                             className="w-full px-4 py-3 text-lg font-semibold text-blue-950 transition-colors rounded-lg bg-blue-400 hover:bg-blue-500 hover:text-blue-100"
                         >

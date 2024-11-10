@@ -1,5 +1,6 @@
 import { BrowserProvider, Contract, JsonRpcSigner, parseEther } from 'ethers';
 import contractDetails from '../consts/contractDetails';
+import { SetStateAction } from 'react';
 
 type FormType = {
     flightNumber: string;
@@ -189,26 +190,31 @@ export const getFlightDetails = async (tokenIds: number[]): Promise<Flight[]> =>
 };
 
 
+type ticketProps = {
+    blockNumber: string;
+    blockHash: string;
+    gasPrice: number;
+    metadataURI: string;
+}
 
 interface PurchaseTicketParams {
+    setLoading: any;
+    setTicketBought: React.Dispatch<SetStateAction<ticketProps | null>>;
     flightId: number;
     quantity: number;
     price: string; // Price in ETH
-}
-
-interface PurchaseTicketResult {
-    success: boolean;
-    transactionHash: string;
-    quantity: number;
-    flightId: number;
+    metadataURI: string,
 }
 
 export const purchaseTicket = async ({
+    setLoading,
+    setTicketBought,
     flightId,
     quantity,
-    price
-}: PurchaseTicketParams): Promise<PurchaseTicketResult> => {
-    console.log(flightId, quantity, price);
+    price,
+    metadataURI
+}: PurchaseTicketParams) => {
+    setLoading(true);
     try {
         const CONTRACT_ADDRESS = contractDetails.contractAddress;
         const CONTRACT_ABI = contractDetails.contractABI;
@@ -267,6 +273,14 @@ export const purchaseTicket = async ({
         const receipt = await tx.wait();
         console.log("Receipt:", receipt);
 
+
+        setTicketBought({
+            blockNumber: receipt.blockNumber,
+            blockHash: receipt.blockHash,
+            gasPrice: tx.gasPrice,
+            metadataURI
+        })
+
         // Find the TicketPurchased event
         const event = receipt.events?.find(
             (event: { event: string }) => event.event === 'TicketPurchased'
@@ -275,13 +289,8 @@ export const purchaseTicket = async ({
         if (!event) {
             throw new Error("Ticket purchase event not found in transaction receipt");
         }
-
-        return {
-            success: true,
-            transactionHash: receipt.hash,
-            quantity,
-            flightId
-        };
+        
+        return;
 
     } catch (error: any) {
         console.error("Error purchasing ticket:", error);
@@ -301,5 +310,7 @@ export const purchaseTicket = async ({
         }
 
         throw new Error(error.message || "Failed to purchase ticket");
+    } finally {
+        setLoading(false);
     }
 };

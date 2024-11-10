@@ -69,6 +69,8 @@ const Search = () => {
             fare={flights[flightPreview - 1].price}
             airline={flights[flightPreview - 1].airline}
             metadataURI={flights[flightPreview - 1].metadataURI.replace('ipfs://', '')}
+            totalSeats={flights[flightPreview - 1].totalSeats}
+            remaningSeats={flights[flightPreview - 1].remainingSeats}
             setFlightPreview={setFlightPreview}
           />
         ):
