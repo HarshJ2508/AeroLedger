@@ -117,7 +117,7 @@ const IpfsViewer = ({ ipfsUrl }: { ipfsUrl: string }) => {
           <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-blue-900 bg-opacity-40">
             {metadata.image && (
               <img 
-                src={getGatewayUrl(getIpfsHash(metadata.image))}
+                src={metadata.image}
                 alt={metadata.name}
                 className="object-cover w-full h-full"
               />
@@ -145,7 +145,7 @@ const IpfsViewer = ({ ipfsUrl }: { ipfsUrl: string }) => {
             <div className="flex items-center gap-2">
               <span className="font-medium">Image:</span>
               <a 
-                href={getGatewayUrl(getIpfsHash(metadata.image))} 
+                href={metadata.image} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 flex items-center gap-1"

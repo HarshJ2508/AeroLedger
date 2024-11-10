@@ -4,7 +4,7 @@ import { uploadToPinata } from "../utils/ipfsUpload";
 import { base64ToFile } from "../utils/base64ToFile";
 import IpfsViewer from "./IpfsViewer";
 import Loader from "../components/Loader";
-
+import { createFlightTransaction } from "../utils/flightService";
 
 const form = [
   {
@@ -108,7 +108,7 @@ const MintTickets = () => {
 
     try {
       const imageFile = await base64ToFile(nftImage, 'ticket-image.png');
-      setLoadStatus('Uploading to IPFS....')
+      setLoadStatus('Uploading to IPFS....');
       const metadataUri = await uploadToPinata(
         formData,
         imageFile,
@@ -116,8 +116,9 @@ const MintTickets = () => {
       );
       setMetaDataUri(metadataUri);
 
-      // const txnResult = await createFlightTransaction(formData, metadataUri);
-      // console.log(txnResult);
+      setLoadStatus('Creating Flight NFT on Sepolia Blockchain....');
+      const txnResult = await createFlightTransaction(formData, metadataUri);
+      console.log(txnResult);
 
     } catch (error) {
       console.log(error);
