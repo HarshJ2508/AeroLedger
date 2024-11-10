@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plane, Clock, ArrowLeft, ExternalLink, MapPin, Building, Ticket } from 'lucide-react';
+import { purchaseTicket } from '../utils/flightService';
 
 type Props = {
     tokenId: string;
@@ -151,7 +152,14 @@ const FlightPreview = ({
                     </div>
 
                     <div className="mt-auto">
-                        <button className="w-full px-4 py-3 text-lg font-semibold text-blue-950 transition-colors rounded-lg bg-blue-400 hover:bg-blue-500 hover:text-blue-100">
+                        <button 
+                            onClick={() => purchaseTicket({
+                                flightId: Number.parseInt(tokenId),
+                                quantity: 1,
+                                price: ethPrice.toString()
+                            })}
+                            className="w-full px-4 py-3 text-lg font-semibold text-blue-950 transition-colors rounded-lg bg-blue-400 hover:bg-blue-500 hover:text-blue-100"
+                        >
                             Buy Ticket
                         </button>
                     </div>

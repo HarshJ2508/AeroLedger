@@ -57,6 +57,7 @@ const Search = () => {
 
   return (
     <div className="mt-10">
+      
       {
         flightPreview ? (
           <FlightPreview 
@@ -72,22 +73,25 @@ const Search = () => {
           />
         ):
         (
-          <div className="grid grid-cols-3 gap-4">
-            {flights.map((flight, index) => (
-              <FlightCard 
-                key={index}
-                tokenId={flight.id}  
-                departureTime={flight.departureTime}
-                flightNumber={flight.flightNumber}
-                source={flight.source}
-                destination={flight.destination}
-                fare={flight.price}
-                airline={flight.airline}
-                metadataURI={flight.metadataURI.replace('ipfs://', '')}
-                setFlightPreview={setFlightPreview}
-              />
-            ))}
-          </div>
+          <>
+            <h1 className="text-2xl font-semibold mb-10">Flights Details</h1>
+            <div className="grid grid-cols-3 gap-4">
+              {flights.map((flight, index) => (
+                <FlightCard 
+                  key={index}
+                  tokenId={flight.id}  
+                  departureTime={flight.departureTime}
+                  flightNumber={flight.flightNumber}
+                  source={flight.source}
+                  destination={flight.destination}
+                  fare={flight.price}
+                  airline={flight.airline}
+                  metadataURI={flight.metadataURI.replace('ipfs://', '')}
+                  setFlightPreview={setFlightPreview}
+                />
+              ))}
+            </div>
+          </>
         )
       }
     </div>

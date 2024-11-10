@@ -187,3 +187,119 @@ export const getFlightDetails = async (tokenIds: number[]): Promise<Flight[]> =>
         throw new Error(error.message || "Failed to fetch flight details");
     }
 };
+
+
+
+interface PurchaseTicketParams {
+    flightId: number;
+    quantity: number;
+    price: string; // Price in ETH
+}
+
+interface PurchaseTicketResult {
+    success: boolean;
+    transactionHash: string;
+    quantity: number;
+    flightId: number;
+}
+
+export const purchaseTicket = async ({
+    flightId,
+    quantity,
+    price
+}: PurchaseTicketParams): Promise<PurchaseTicketResult> => {
+    console.log(flightId, quantity, price);
+    try {
+        const CONTRACT_ADDRESS = contractDetails.contractAddress;
+        const CONTRACT_ABI = contractDetails.contractABI;
+
+        if (!window.ethereum) {
+            throw new Error("Please install MetaMask!");
+        }
+
+        // Input validation
+        if (flightId < 0) {
+            throw new Error("Invalid flight ID");
+        }
+
+        if (quantity <= 0) {
+            throw new Error("Quantity must be greater than 0");
+        }
+
+        // Request account access
+        const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts'
+        });
+
+        // Create a provider and signer
+        const provider = new BrowserProvider(window.ethereum);
+        const signer: JsonRpcSigner = await provider.getSigner();
+
+        // Create contract instance
+        const contract = new Contract(
+            CONTRACT_ADDRESS,
+            CONTRACT_ABI,
+            signer
+        );
+
+        // Calculate total price in Wei
+        const priceInWei = parseEther(price);
+        const totalPrice = priceInWei * BigInt(quantity);
+
+        // Purchase tickets
+        console.log("Purchasing tickets with parameters:", {
+            flightId,
+            quantity,
+            totalPrice: totalPrice.toString()
+        });
+
+        const tx = await contract.purchaseTickets(
+            flightId,
+            quantity,
+            {
+                value: totalPrice // Send ETH with the transaction
+            }
+        );
+
+        console.log("Transaction:", tx);
+
+        // Wait for transaction to be mined
+        const receipt = await tx.wait();
+        console.log("Receipt:", receipt);
+
+        // Find the TicketPurchased event
+        const event = receipt.events?.find(
+            (event: { event: string }) => event.event === 'TicketPurchased'
+        );
+
+        if (!event) {
+            throw new Error("Ticket purchase event not found in transaction receipt");
+        }
+
+        return {
+            success: true,
+            transactionHash: receipt.hash,
+            quantity,
+            flightId
+        };
+
+    } catch (error: any) {
+        console.error("Error purchasing ticket:", error);
+        
+        // Handle specific error cases
+        if (error.message.includes("Flight is not active")) {
+            throw new Error("This flight is no longer available for booking");
+        }
+        if (error.message.includes("Not enough tickets available")) {
+            throw new Error("The requested number of tickets is not available");
+        }
+        if (error.message.includes("Insufficient funds")) {
+            throw new Error("Insufficient funds to complete the purchase");
+        }
+        if (error.message.includes("Flight has departed")) {
+            throw new Error("Cannot purchase tickets for a departed flight");
+        }
+
+        throw new Error(error.message || "Failed to purchase ticket");
+    }
+};
