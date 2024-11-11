@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5173:5173"    # Frontend (Vite) accessible via port 5173 on the host
+      - "3000:3000"    # Backend accessible via port 3000
+    networks:
+      - aero_network
+
+networks:
+  aero_network:
+    driver: bridge
