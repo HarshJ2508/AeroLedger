@@ -5,6 +5,7 @@ import { base64ToFile } from "../utils/base64ToFile";
 import IpfsViewer from "./IpfsViewer";
 import Loader from "../components/Loader";
 import { createFlightTransaction } from "../utils/flightService";
+import { motion } from "framer-motion";
 
 const form = [
   {
@@ -127,6 +128,55 @@ const MintTickets = () => {
     setLoadStatus('');
   }   
 
+
+  const formContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const formItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: 0.8 }
+    },
+    hover: {
+      scale: 1.02,
+      transition: { duration: 0.2 }
+    },
+    tap: { scale: 0.98 }
+  };
+
+  const imgContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+    },
+    hover: {
+      scale: 1.02,
+      transition: { duration: 0.1 }
+    },
+  }
+
   return (
     <div className="mt-10 flex h-full gap-10 justify-between">
       {loadStatus ? (
@@ -142,7 +192,11 @@ const MintTickets = () => {
       ):
       (
         <>
-          <div 
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            variants={imgContainerVariants}
             className="w-[500px] flex flex-col justify-center items-center bg-opacity-50 bg-blue-950 h-[570px] rounded-3xl cursor-pointer hover:bg-blue-900 hover:bg-opacity-50 duration-200 transition-all border-[2px] border-blue-900 gap-2"
             onClick={handleFileInputClick}
           >
@@ -183,16 +237,30 @@ const MintTickets = () => {
                 </>
               )
             }
-          </div>
-          <div className="w-1/2 flex flex-col gap-4">
+          </motion.div>
+          <motion.div 
+            className="w-1/2 flex flex-col gap-4"
+            variants={formContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {form.map((data) => {
                 return (
-                  <div 
+                  <motion.div 
+                    variants={formItemVariants}
                     key={data.id} 
                     className="flex flex-col"
                   >
-                    <label className="text-md font-medium">{data.label}</label>
-                    <input 
+                    <motion.label 
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-md font-medium"
+                    >
+                      {data.label}
+                    </motion.label>
+                    <motion.input 
+                      whileFocus={{ scale: 1.01 }}
+                      transition={{ duration: 0.2 }}
                       id={data.id}
                       name={data.id}
                       type={data.type} 
@@ -203,16 +271,19 @@ const MintTickets = () => {
                         ${data.type === 'date' ? 'cursor-pointer hover:bg-blue-900 hover:bg-opacity-50' : ''}`}
                       min={data.type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
                     />
-                  </div>
+                  </motion.div>
               )})
             }
-            <button 
+            <motion.button 
               onClick={handleSubmit}
               className="mt-2 bg-blue-600 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
             >
               Mint Tickets
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </>
         )
       }

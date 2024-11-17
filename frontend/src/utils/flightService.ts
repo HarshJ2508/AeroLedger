@@ -70,15 +70,9 @@ export const createFlightTransaction = async (formData: FormType, metadataUri: s
             throw new Error("Departure time must be in the future");
         }
 
-        // Request account access
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        });
-
         // Create a provider and signer
         const provider = new BrowserProvider(window.ethereum);
         const signer: JsonRpcSigner = await provider.getSigner();
-        const address = await signer.getAddress();
 
         // Create contract instance
         const contract = new Contract(
@@ -231,11 +225,6 @@ export const purchaseTicket = async ({
         if (quantity <= 0) {
             throw new Error("Quantity must be greater than 0");
         }
-
-        // Request account access
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        });
 
         // Create a provider and signer
         const provider = new BrowserProvider(window.ethereum);

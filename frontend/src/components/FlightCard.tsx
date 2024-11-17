@@ -15,7 +15,6 @@ type Props = {
 
 const FlightCard = ({
     tokenId,
-    flightNumber,
     source,
     destination,
     fare,
@@ -96,7 +95,7 @@ const FlightCard = ({
                         <img 
                             src={nftImage} 
                             alt="Flight NFT" 
-                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                         />
                     </div>
                 )}
